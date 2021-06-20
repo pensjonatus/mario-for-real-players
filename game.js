@@ -60,6 +60,7 @@ loadSprite("blue-surprise", "./img/blue-surprise.png");
 loadSound("jump-sfx", "./sounds/jump.wav");
 loadSound("smush-sfx", "./sounds/smush.wav");
 loadSound("coin-sfx", "./sounds/coin.wav");
+loadSound("coin-collect-sfx", "./sounds/coin-collect.wav");
 loadSound("heal-sfx", "./sounds/heal.wav");
 
 scene("game", ({ level, score }) => {
@@ -195,6 +196,7 @@ scene("game", ({ level, score }) => {
   });
 
   player.collides("coin", (c) => {
+    play("coin-collect-sfx");
     destroy(c);
     scoreLabel.value++;
     scoreLabel.text = scoreLabel.value;
