@@ -1,5 +1,14 @@
-# mario
-A game of Mario using JavaScript and Kaboom.js
+# Mario for real players
+
+You need a server to run this game. You can start a server on localhost:
+
+```
+python -m http.server
+```
+
+## Based on a tutorial by Ania Kubów
+
+Info from Ania below.
 
 View the tutorial [here](https://youtu.be/2nucjefSr6I)
 
@@ -19,5 +28,6 @@ ___
 ⭐ Sign up for weekly coding tips from my newsletter partnership: https://bit.ly/JS-tips
 
 ### You can also find me on:
+
 * Twitter: https://twitter.com/ania_kubow
 * Instagram: https://instagram.com/aniakubow
