@@ -19,7 +19,7 @@ loadSprite("mario", "./img/mario.png", {
   anims: {
     run: {
       from: 2,
-      to: 5,
+      to: 4,
     },
     jump: {
       from: 6,
@@ -58,6 +58,9 @@ loadSprite("blue-goomba", "./img/blue-goomba.png");
 loadSprite("blue-surprise", "./img/blue-surprise.png");
 
 loadSound("jump-sfx", "./sounds/jump.wav");
+loadSound("smush-sfx", "./sounds/smush.wav");
+loadSound("coin-sfx", "./sounds/coin.wav");
+loadSound("heal-sfx", "./sounds/heal.wav");
 
 scene("game", ({ level, score }) => {
   layers(["bg", "obj", "ui"], "obj");
@@ -101,7 +104,7 @@ scene("game", ({ level, score }) => {
     ")": [sprite("pipe-bottom-right"), solid(), scale(0.5)],
     "-": [sprite("pipe-top-left"), solid(), scale(0.5), "pipe"],
     "+": [sprite("pipe-top-right"), solid(), scale(0.5), "pipe"],
-    "^": [sprite("goomba"), solid(), "dangerous", body()],
+    "^": [sprite("goomba"), solid(), scale(1), "dangerous", body()],
     "#": [sprite("mushroom"), solid(), "mushroom", body()],
     "!": [sprite("blue-ground"), solid(), scale(0.5)],
     "£": [sprite("blue-brick"), solid(), scale(0.5)],
@@ -157,6 +160,7 @@ scene("game", ({ level, score }) => {
     sprite("mario"),
     solid(),
     pos(30, 0),
+    scale(1),
     body(),
     big(),
     origin("bot"),
@@ -168,11 +172,13 @@ scene("game", ({ level, score }) => {
 
   player.on("headbump", (obj) => {
     if (obj.is("coin-surprise")) {
+      play("coin-sfx");
       gameLevel.spawn("$", obj.gridPos.sub(0, 1));
       destroy(obj);
       gameLevel.spawn("}", obj.gridPos.sub(0, 0));
     }
     if (obj.is("mushroom-surprise")) {
+      play("heal-sfx");
       gameLevel.spawn("#", obj.gridPos.sub(0, 1));
       destroy(obj);
       gameLevel.spawn("}", obj.gridPos.sub(0, 0));
@@ -202,7 +208,13 @@ scene("game", ({ level, score }) => {
 
   player.collides("dangerous", (d) => {
     if (isJumping) {
-      destroy(d);
+      d.stop();
+      d.rmTag("dangerous");
+      play("smush-sfx");
+      d.scale = vec2(1, -0.2);
+      wait(1, () => {
+        destroy(d);
+      });
     } else {
       const currentPos = player.pos;
       camPos(currentPos);
@@ -236,12 +248,25 @@ scene("game", ({ level, score }) => {
     });
   });
 
+  keyDown(["left", "right"], () => {
+    if (player.grounded() && player.curAnim() !== "run") {
+      player.play("run");
+    }
+  });
+
+  keyRelease(["left", "right"], () => {
+    if (!keyIsDown("right") && !keyIsDown("left")) {
+      player.play("idle");
+    }
+  });
+
   keyDown("left", () => {
-    player.running = true;
+    player.flipX(-1);
     player.move(-MOVE_SPEED, 0);
   });
 
   keyDown("right", () => {
+    player.flipX(1);
     player.move(MOVE_SPEED, 0);
   });
 
