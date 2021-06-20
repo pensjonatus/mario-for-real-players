@@ -29,6 +29,10 @@ loadSprite("mario", "./img/mario.png", {
       from: 0,
       to: 0,
     },
+    die: {
+      from: 1,
+      to: 1,
+    },
   },
 });
 
@@ -175,6 +179,10 @@ scene("game", ({ level, score }) => {
     }
   });
 
+  player.on("grounded", () => {
+    player.play("idle");
+  });
+
   player.collides("mushroom", (m) => {
     destroy(m);
     player.biggify(6);
@@ -196,7 +204,13 @@ scene("game", ({ level, score }) => {
     if (isJumping) {
       destroy(d);
     } else {
-      go("lose", { score: scoreLabel.value });
+      const currentPos = player.pos;
+      camPos(currentPos);
+      player.play("die");
+      player.jump(CURRENT_JUMP_FORCE);
+      wait(1, () => {
+        go("lose", { score: scoreLabel.value });
+      });
     }
   });
 
@@ -209,7 +223,6 @@ scene("game", ({ level, score }) => {
 
   player.action(() => {
     if (player.grounded()) {
-      player.play("idle");
       isJumping = false;
     }
   });
@@ -224,13 +237,12 @@ scene("game", ({ level, score }) => {
   });
 
   keyDown("left", () => {
+    player.running = true;
     player.move(-MOVE_SPEED, 0);
-    player.play("run");
   });
 
   keyDown("right", () => {
     player.move(MOVE_SPEED, 0);
-    player.play("run");
   });
 
   keyPress("space", () => {
